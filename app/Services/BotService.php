@@ -9,29 +9,24 @@ class BotService
 {
     public function handle(array $update)
     {
-        // 🔥 ساخت پیام ID امن (برای همه سیستم‌ها)
-        $messageId =
-            data_get($update, 'message.id')
+        $messageId = data_get($update, 'message.id')
             ?? data_get($update, 'update_id')
-            ?? hash('sha256', json_encode($update));
+            ?? uniqid();
 
-        $userId =
-            data_get($update, 'user.id')
+        $userId = data_get($update, 'user.id')
             ?? data_get($update, 'from.id')
             ?? 'guest';
 
-        $text =
-            data_get($update, 'message.text')
+        $text = data_get($update, 'message.text')
             ?? data_get($update, 'text')
             ?? '';
 
-        // 🔥 idempotency (جلوگیری از دوبار پردازش)
+        // idempotency
         $exists = DB::table('processed_messages')
             ->where('message_id', $messageId)
             ->exists();
 
         if ($exists) {
-            Log::info('DUPLICATE IGNORED', ['message_id' => $messageId]);
             return 'duplicate ignored';
         }
 
@@ -42,11 +37,29 @@ class BotService
             'updated_at' => now(),
         ]);
 
-        // 🔥 تست ساده
-        if ($text === 'test') {
-            return 'bot is working';
-        }
+        // 🔥 COMMAND ROUTER
+        return $this->handleCommand($text, $userId);
+    }
 
-        return 'ok message';
+    private function handleCommand(string $text, $userId): string
+    {
+        $text = trim($text);
+
+        return match ($text) {
+
+            '/start' => "👋 سلام! ربات حسابداری نقره فعال شد.",
+
+            '/help', 'help' =>
+            "📌 دستورات:
+            /start
+            موجودی
+            خرید
+            فروش
+            گزارش",
+
+            'موجودی' => "💰 موجودی شما ...",
+
+            default => "❌ دستور شناخته نشد"
+        };
     }
 }
