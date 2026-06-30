@@ -10,9 +10,16 @@ use Illuminate\Support\Facades\DB;
 
 class BotService
 {
-    public function handle(array $update): string
+    public function handle(array $update)
     {
         Log::info('Webhook', $update);
+
+        $messageId = data_get($update, 'message.id');
+
+        if (!$messageId) {
+            Log::warning('Missing message_id', $update);
+            return "error";
+        }
 
         $messageId = data_get($update, 'message.id');
         $userId = data_get($update, 'user.id');
