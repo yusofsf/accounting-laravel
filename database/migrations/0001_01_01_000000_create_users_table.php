@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('rubika_user_id')->unique();
             $table->string('username')->nullable();
-            $table->timestamps();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
