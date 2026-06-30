@@ -2,37 +2,39 @@
 
 namespace App\Services;
 
-use App\Models\Group;
-use App\Models\User;
-use App\Models\Wallet;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class BotService
 {
     public function handle(array $update)
     {
-        Log::info('Webhook', $update);
+        // 🔥 ساخت پیام ID امن (برای همه سیستم‌ها)
+        $messageId =
+            data_get($update, 'message.id')
+            ?? data_get($update, 'update_id')
+            ?? hash('sha256', json_encode($update));
 
-        $messageId = data_get($update, 'message.id');
+        $userId =
+            data_get($update, 'user.id')
+            ?? data_get($update, 'from.id')
+            ?? 'guest';
 
-        if (!$messageId) {
-            Log::warning('Missing message_id', $update);
-            return "error";
-        }
+        $text =
+            data_get($update, 'message.text')
+            ?? data_get($update, 'text')
+            ?? '';
 
-        $messageId = data_get($update, 'message.id');
-        $userId = data_get($update, 'user.id');
-
+        // 🔥 idempotency (جلوگیری از دوبار پردازش)
         $exists = DB::table('processed_messages')
             ->where('message_id', $messageId)
             ->exists();
 
         if ($exists) {
-            return "duplicate ignored";
+            Log::info('DUPLICATE IGNORED', ['message_id' => $messageId]);
+            return 'duplicate ignored';
         }
 
-// ثبت پیام
         DB::table('processed_messages')->insert([
             'message_id' => $messageId,
             'user_id' => $userId,
@@ -40,58 +42,11 @@ class BotService
             'updated_at' => now(),
         ]);
 
-        /*
-         * این قسمت را بعداً با فرمت واقعی روبیکا جایگزین می‌کنیم.
-         */
-
-        $userId = data_get($update, 'user.id');
-        $name = data_get($update, 'user.name', 'Unknown');
-
-        $username = data_get($update, 'user.username');
-
-        $groupId = data_get($update, 'group.id');
-
-        $groupTitle = data_get($update, 'group.title', 'Group');
-
-        $text = trim(data_get($update, 'text', ''));
-
-        if (!$userId) {
-            return 'User not found';
+        // 🔥 تست ساده
+        if ($text === 'test') {
+            return 'bot is working';
         }
 
-        $user = User::firstOrCreate(
-            [
-                'rubika_user_id' => $userId
-            ],
-            [
-                'name' => $name,
-                'username' => $username
-            ]
-        );
-
-        Wallet::firstOrCreate(
-            [
-                'user_id' => $user->id
-            ],
-            [
-                'balance' => 0
-            ]
-        );
-
-        if ($groupId) {
-
-            Group::firstOrCreate(
-                [
-                    'rubika_group_id' => $groupId
-                ],
-                [
-                    'title' => $groupTitle
-                ]
-            );
-
-        }
-
-        return app(CommandService::class)
-            ->execute($text,$user->id);
+        return 'ok message';
     }
 }

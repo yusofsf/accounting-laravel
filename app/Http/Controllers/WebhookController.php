@@ -2,23 +2,43 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\BotService;
 use Illuminate\Http\Request;
+use App\Services\BotService;
+use Illuminate\Support\Facades\Log;
 
 class WebhookController extends Controller
 {
-    public function handle(
-        Request $request,
-        BotService $bot
-    )
+    public function handle(Request $request, BotService $botService)
     {
-        $result = $bot->handle(
-            $request->all()
-        );
+        try {
+            // گرفتن کل payload
+            $update = $request->all();
 
-        return response()->json([
-            'ok' => true,
-            'message' => $result
-        ]);
+            // لاگ برای دیباگ
+            Log::info('WEBHOOK RECEIVED', [
+                'payload' => $update,
+                'headers' => $request->headers->all()
+            ]);
+
+            // اجرای سرویس بات
+            $result = $botService->handle($update);
+
+            return response()->json([
+                'ok' => true,
+                'result' => $result
+            ]);
+
+        } catch (\Throwable $e) {
+
+            Log::error('WEBHOOK ERROR', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine()
+            ]);
+
+            return response()->json([
+                'ok' => false,
+                'message' => 'error'
+            ], 500);
+        }
     }
 }
