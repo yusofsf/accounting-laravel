@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Commands\BuyCommand;
 use App\Services\CommandService;
 use App\Services\TelegramClient;
 use Illuminate\Http\Request;
-use App\Services\BotService;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Morilog\Jalali\Jalalian;
