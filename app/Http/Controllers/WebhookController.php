@@ -307,26 +307,13 @@ class WebhookController extends Controller
 
         $text =
             "✅ مثقال 999/9:\n".
-            "🔴 مثقال فروش: {$f($r['mithqal_price'])} تومان\n".
-            "🟢 مثقال خرید: {$f($r['mithqal_price_buy'])} تومان\n\n".
             "⚖️ گرم 999/9:\n".
-            "🔴 فروش: {$f($gramPrice)} تومان\n".
-            "🟢 خرید: {$f($r['gram_price_buy'])} تومان\n\n".
             "✅  مثقال995: \n".
-            "🔴 مثقال فروش: {$f($r['mithqal_995_price'])} تومان\n".
-            "🟢 مثقال خرید: {$f($r['mithqal_995_price_buy'])} تومان\n\n".
             "⚖️ گرم 995:\n".
             "📅 {$now}";
 
         BotLog::info('📤 تأیید قیمت به ادمین ارسال شد', [
             'gram_price' => $gramPrice,
-            'mithqal_price' => $r['mithqal_price'],
-            'mithqal_price_buy' => $r['mithqal_price_buy'],
-            'gram_price_buy' => $r['gram_price_buy'],
-            'gram_995' => $gram995,
-            'gram_995_buy' => $r['gram_995_buy'],
-            'mithqal_995_price' => $r['mithqal_995_price'],
-            'mithqal_995_price_buy' => $r['mithqal_995_price_buy'],
             'message_text' => $text,
         ]);
 
