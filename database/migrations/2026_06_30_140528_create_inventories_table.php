@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
             $table->decimal('silver_weight',20,3)->default(0);
-            $table->decimal('average_price',20,2)->default(0);
+            $table->decimal('total_price',20,2)->default(0);
             $table->timestamps();
         });
     }

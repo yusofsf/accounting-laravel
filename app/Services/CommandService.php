@@ -14,9 +14,9 @@ class CommandService
 
     protected array $commands = [
 
-        'موجودی' => BalanceCommand::class,
+        'موجودی پولی' => BalanceCommand::class,
 
-        'شارژ' => DepositCommand::class,
+        'موجودی انبار' => UsersCommand::class,
 
         'کمک' => HelpCommand::class,
 
